@@ -1,4 +1,4 @@
-from application import create_app, db
+from application import create_app,db
 from flask_migrate import Migrate
 import application.models
 import application.observer

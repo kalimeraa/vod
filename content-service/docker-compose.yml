@@ -49,6 +49,10 @@ services:
       - DEBUG=TRUE
       - FLASK_ENV=development
       - FLASK_APP=app.py
+      - REDIS_HOST=content-redis
+      - REDIS_PORT=6379
+      - REDIS_USER=
+      - REDIS_PASSWORD=
       - SQLALCHEMY_DATABASE_URI=postgresql://postgresrootuser:postgresrootpassword@content-db:5432/content-db
     networks:
       - vod_network

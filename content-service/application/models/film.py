@@ -2,9 +2,12 @@
 from application import db
 from datetime import datetime
 from dataclasses import dataclass
+from flask_serialize.flask_serialize import FlaskSerialize
+
+fs_mixin = FlaskSerialize(db)
 
 @dataclass
-class Film(db.Model):
+class Film(db.Model,fs_mixin):
     __tablename__ = 'films'
 
     id: int
