@@ -1,0 +1,57 @@
+version: "3.1"
+
+volumes:
+  content_dbvol:
+
+networks:
+  vod_network:
+    external:
+      name: vod_network
+
+services:
+  content-redis:
+    image: redis:6.0-alpine
+    container_name: content-redis
+    working_dir: /application
+    ports:
+      - "6379:6379"
+    networks:
+      - vod_network
+    restart: always 
+
+  content-db:
+    image: postgres
+    container_name: content-db
+    volumes:
+      - content_dbvol:/var/lib/postgresql/data:delegated
+    environment:
+      - POSTGRES_USER=postgresrootuser
+      - POSTGRES_PASSWORD=postgresrootpassword
+      - POSTGRES_DB=content-db
+    ports:
+      - "8084:5432"
+    networks:
+      - vod_network
+    restart: always     
+
+  content-service:
+    build:
+      context: .
+    container_name: content-service
+    depends_on: 
+      - content-redis
+      - content-db
+    ports:
+      - "5000:5000"
+    volumes: 
+      - ./:/content-service
+    environment: 
+      - DEBUG=TRUE
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgresrootuser:postgresrootpassword@content-db:5432/content-db
+    networks:
+      - vod_network
+    restart: always 
+  
+  
