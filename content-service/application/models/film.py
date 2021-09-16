@@ -34,7 +34,7 @@ class Film(db.Model):
         return Film.query.all()
 
     @staticmethod
-    def create(content: list):
+    def create(content):
         film = Film()
         film.name = content['name']
         film.description = content['description']
@@ -52,11 +52,16 @@ class Film(db.Model):
     def get_by_slug(slug):
         return Film.query.filter_by(slug=slug).first()
 
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+    def delete(self) -> bool:
+        try:
+            db.session.delete(self)
+            db.session.commit()
 
-    def update(self,content: list):
+            return True
+        except:
+            return False    
+
+    def update(self,content):
         self.name = content['name']
         self.cover = content['cover']
         self.fragman = content['fragman']
