@@ -2,12 +2,9 @@
 from application import db
 from datetime import datetime
 from dataclasses import dataclass
-from flask_serialize.flask_serialize import FlaskSerialize
-
-fs_mixin = FlaskSerialize(db)
 
 @dataclass
-class Film(db.Model,fs_mixin):
+class Film(db.Model):
     __tablename__ = 'films'
 
     id: int
@@ -37,14 +34,42 @@ class Film(db.Model,fs_mixin):
         return Film.query.all()
 
     @staticmethod
-    def getBySlug(slug):
-        return Film.query.filter_by(slug=slug).first()
+    def create(content: list):
+        film = Film()
+        film.name = content['name']
+        film.description = content['description']
+        film.year = content['year']
+        film.cover = content['cover']
+        film.fragman = content['fragman']
+        film.category_id = content['category_id']
+
+        db.session.add(film)
+        db.session.commit()
+
+        return film
 
     @staticmethod
-    def deleteBySlug(slug):
-        return True
+    def get_by_slug(slug):
+        return Film.query.filter_by(slug=slug).first()
 
-    def to_json(self):
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self,content: list):
+        self.name = content['name']
+        self.cover = content['cover']
+        self.fragman = content['fragman']
+        self.description = content['description']
+        self.year = content['year']
+        self.category_id = content['category_id']
+
+        db.session.add(self)
+        db.session.commit()
+
+        return self
+
+    def to_json(self) -> dict:
         return {
             'id': self.id,
             'name': self.name,
@@ -54,6 +79,8 @@ class Film(db.Model,fs_mixin):
             'year': self.year,
             'category_id': self.category_id,
             'slug': self.slug,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
         }
 
 

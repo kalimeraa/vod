@@ -19,21 +19,12 @@ def store():
     if v.errors:
         return jsonify(v.errors),400
 
-    film = Film.getBySlug(slugify(content['name']))
+    film = Film.get_by_slug(slugify(content['name']))
     if film is not None:
         return {'status':False,'message':'Film is already exist','film':film.to_json()},409
 
-    film = Film()
-    film.name = content['name']
-    film.cover = content['cover']
-    film.fragman = content['fragman']
-    film.description = content['description']
-    film.year = content['year']
-    film.category_id = content['category_id']
+    film = Film.create(content)
     
-    db.session.add(film)
-    db.session.commit()
-
     return {'status':True,'message':'created','film':film.to_json()}
 
 @accept('application/json')
@@ -46,21 +37,13 @@ def update(slug):
     if v.errors:
         return jsonify(v.errors),400
 
-    film_exist = Film.getBySlug(content['slug'])
-    if film_exist is None:
+    film = Film.get_by_slug(content['slug'])
+    if film is None:
         return {'status':False,'message':'film not found','film':None},404
 
-    film_exist.name = content['name']
-    film_exist.cover = content['cover']
-    film_exist.fragman = content['fragman']
-    film_exist.description = content['description']
-    film_exist.year = content['year']
-    film_exist.category_id = content['category_id']
-    
-    db.session.add(film_exist)
-    db.session.commit()
+    film.update(content)
 
-    return {'status':True,'message':'updated','film':film_exist.to_json()}    
+    return {'status':True,'message':'updated','film':film.to_json()}    
 
 @content_service_api_blueprint.route('/api/films', methods=['GET'])
 def index():
@@ -98,7 +81,7 @@ def show(slug):
         content = json.loads(redis_film_detail)
         return jsonify(content)
 
-    film = Film.getBySlug(slug)
+    film = Film.get_by_slug(slug)
     if film is None:
         return {'status':False,'message':'film not found','film':None},404
         
@@ -116,13 +99,11 @@ def destroy(slug):
     if v.errors:
         return jsonify(v.errors),400
 
-    film = Film.getBySlug(slug)
+    film = Film.get_by_slug(slug)
     if film is None:
         return {'status':False,'message':'film not found','film':None},404
 
-    film = Film.query.filter_by(slug=slug).one()
-    db.session.delete(film)
-    db.session.commit()
+    film.delete()
 
     return {'status':True,'message':'deleted','film':film}
 
