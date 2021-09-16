@@ -19,7 +19,7 @@ test_film1.updated_at = date.today()
 
 #Film.all()
 @patch("application.models.film.Film")
-def test_it_should_return_empty_array(mock_film):
+def test_should_be_returned_empty_array(mock_film):
     mock_film.query.all.return_value = []
     films = Film.all()
 
@@ -27,8 +27,7 @@ def test_it_should_return_empty_array(mock_film):
 
 #Film.all()
 @patch("application.models.film.Film")
-def test_it_should_return_films(mock_film):
-
+def test_should_be_returned_films(mock_film):
     test_film2 = Film()
     test_film2.id = 1
     test_film2.name = "Matrix Reloaded"
@@ -49,7 +48,7 @@ def test_it_should_return_films(mock_film):
 
 #Film.get_by_slug()
 @patch("application.models.film.Film")
-def test_it_should_return_none(mock_film):
+def test_should_be_returned_none(mock_film):
     mock_film.query.filter_by(slug=dummySlug).first.return_value = None
     film = Film.get_by_slug(dummySlug)
 
@@ -57,7 +56,7 @@ def test_it_should_return_none(mock_film):
 
 #Film.get_by_slug()
 @patch("application.models.film.Film")
-def test_it_should_return_film(mock_film):
+def test_should_be_returned_film(mock_film):
     mock_film.query.filter_by(slug=dummySlug).first.return_value = test_film1
 
     film = Film.get_by_slug(dummySlug)
@@ -65,7 +64,7 @@ def test_it_should_return_film(mock_film):
 
 #Film.to_json()
 @patch("application.models.film.Film")
-def test_it_should_return_film_json(mock_film):
+def test_should_be_returned_film_json(mock_film):
     mock_film.query.filter_by(slug=dummySlug).first.return_value = test_film1
     film_json = Film.get_by_slug(dummySlug).to_json()
 
@@ -86,7 +85,7 @@ def test_it_should_return_film_json(mock_film):
 
 #Film.delete()
 @patch("application.models.film.Film")
-def test_it_should_delete_film(mock_film):
+def test_should_be_deleted_film(mock_film):
     mock_film.query.filter_by(slug=dummySlug).first.return_value = test_film1
     
     film = Film.get_by_slug(dummySlug)
@@ -100,7 +99,7 @@ def test_it_should_delete_film(mock_film):
             assert(status == True)
 
 #Film.create()
-def test_it_should_create_film():
+def test_should_be_created_film():
     data = {
             'name': 'Matrix 1999',
             'description': 'matrix desc',
@@ -127,7 +126,7 @@ def test_it_should_create_film():
     
 #Film.update()
 @patch("application.models.film.Film")
-def test_it_should_update_film(mock_film):
+def test_should_be_updated_film(mock_film):
     mock_film.query.filter_by(slug=dummySlug).first.return_value = test_film1  
     patched_add = MagicMock(spec=sqlalchemy.orm.Session.add)
     patched_commit = MagicMock(spec=sqlalchemy.orm.Session.commit)

@@ -1,6 +1,5 @@
 from . import content_service_api_blueprint
 from cerberus import Validator
-from flask_accept import accept
 from application.http.validations import film as film_schema
 from flask import request,jsonify
 from ..models.film import Film
@@ -12,7 +11,6 @@ import json
 v = Validator()
 
 @content_service_api_blueprint.route('/api/films', methods=['POST'])
-@accept('application/json')
 def store():
     content = request.json
     v.validate(content,film_schema.create)
@@ -21,13 +19,12 @@ def store():
 
     film = Film.get_by_slug(slugify(content['name']))
     if film is not None:
-        return {'status':False,'message':'Film is already exist','film':film.to_json()},409
+        return {'status':False,'message':'film is already exist','film':film.to_json()},409
 
     film = Film.create(content)
     
     return {'status':True,'message':'created','film':film.to_json()}
 
-@accept('application/json')
 @content_service_api_blueprint.route('/api/films/<string:slug>', methods=['PUT','PATCH'])
 def update(slug):
     content = request.json
@@ -47,7 +44,7 @@ def update(slug):
 
 @content_service_api_blueprint.route('/api/films', methods=['GET'])
 def index():
-    page_size=1
+    page_size=20
     pageArg = request.args.get('page')
     if pageArg is None:
         page = 1
@@ -61,7 +58,7 @@ def index():
     
     films = Film.query.limit(page_size).offset(page-1**page_size).all()
     if len(films) == 0:
-        return {'status':False,'message':'There are no films','films':None},404
+        return {'status':False,'message':'there are no films','films':None},404
     
     response = jsonify({'status':True,'message':'successful','films':films})
 

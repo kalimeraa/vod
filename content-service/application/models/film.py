@@ -18,7 +18,7 @@ class Film(db.Model):
     created_at: datetime
     updated_at: datetime
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     name = db.Column(db.String(255), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     fragman = db.Column(db.String(255), nullable=False)
