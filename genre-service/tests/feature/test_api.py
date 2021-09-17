@@ -1,3 +1,7 @@
+from unittest.mock import patch,MagicMock
+import application
+
+
 input = {
     "name": "Horror",
     "description": "horror movies",
@@ -19,6 +23,38 @@ incorrect_input = {
 incorrect_update_input = {
     "description": "fiction movies",
     "cover" : "https://imdb.pic/fiction.jpg",
+}
+
+film_service_response = {
+    "response_data": {
+        "films": [
+            {
+                "cover": "https://matrix.com/cover.jpg",
+                "created_at": "Fri, 17 Sep 2021 19:39:57 GMT",
+                "description": "matrix desc",
+                "fragman": "https://w22ww.youtube.com/watch?v=c5gVlizVEQk",
+                "genre_id": 1,
+                "id": 1,
+                "name": "matrix 2",
+                "slug": "matrix-2",
+                "updated_at": "Fri, 17 Sep 2021 19:39:57 GMT",
+                "year": 2100
+            }
+        ],
+        "message": "successful",
+        "status": True
+    },
+    "status_code": 200
+}
+
+
+film_service_empty_response = {
+    "response_data": {
+        "films": None,
+        "message": "there are no films",
+        "status": False
+    },
+    "status_code": 200
 }
 
 #api/genres create genre
@@ -127,4 +163,38 @@ def test_should_show_two_genres(client):
     assert (len(json['genres']) == 2)
     assert (json['message'] == 'successful')
 
+#api/genres/<genre>/films all
+def test_should_be_shown_genre_films(client):
+    client.post('/api/genres', json=input)
+    patched_film_service = MagicMock(spec=application.services.film_service.FilmService.get_films_by_slug)
+    patched_film_service.return_value = film_service_response
+
+    with patch('application.services.film_service.FilmService.get_films_by_slug', new=patched_film_service):
+        rv = client.get('api/genres/horror/films')
+        json = rv.get_json()
+
+        assert (json['status'] == True)
+        assert (len(json['films']) == 1)
+        assert (json['message'] == 'successful')
+
+
+#api/genres/<genre>/films all
+def test_should_be_shown_empty_genre_films(client):
+    client.post('/api/genres', json=input)
+    patched_film_service = MagicMock(spec=application.services.film_service.FilmService.get_films_by_slug)
+    patched_film_service.return_value = film_service_empty_response
+
+    with patch('application.services.film_service.FilmService.get_films_by_slug', new=patched_film_service):
+        rv = client.get('api/genres/horror/films')
+        json = rv.get_json()
+
+        assert (json == {'status':False,'message':'there are no films','films':None})
+
+#api/genres/<genre>/films alll
+def test_should_be_genre_not_found_error_when_show_genre_films(client):
+    rv = client.get('api/genres/dummy-genre/films')
+    json = rv.get_json()
+
+    assert (rv.status_code == 404)
+    assert (json == {"genre": None,"message": "genre not found","status": False})       
 

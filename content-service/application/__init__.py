@@ -1,5 +1,5 @@
 # application/__init__.py
-from flask import Flask
+from flask import Flask,request
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
 from redis import Redis
@@ -24,10 +24,12 @@ def create_app(test=False):
     with app.app_context():
         from .routes import content_service_api_blueprint
         app.register_blueprint(content_service_api_blueprint)
+        
         #just migration
         if environ['FLASK_ENV'] == 'development':
             db.drop_all()
             db.create_all()
+            
     return app
 
 

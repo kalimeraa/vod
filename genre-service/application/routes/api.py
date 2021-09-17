@@ -4,6 +4,7 @@ from application.http.validations import genre as genre_schema
 from flask import request,jsonify
 from ..models.genre import Genre
 from ..services.redis_service import store_genre_detail,get_genre_detail,store_genres_page,get_genres_page
+from ..services.film_service import FilmService
 from .. import db
 from slugify import slugify
 import json
@@ -31,7 +32,7 @@ def update(slug):
     v.validate(input,genre_schema.update)
     if v.errors:
         return jsonify(v.errors),400
-
+    
     genre = Genre.get_by_slug(slug)
     if genre is None:
         return {'status':False,'message':'genre not found','genre':None},404
@@ -67,12 +68,6 @@ def index():
 
 @genre_service_api_blueprint.route('/api/genres/<string:slug>', methods=['GET'])
 def show(slug):
-    input = {'slug':slug}
-
-    v.validate(input,genre_schema.show)
-    if v.errors:
-        return jsonify(v.errors),400
-
     redis_genre_detail = get_genre_detail(slug)    
     if redis_genre_detail is not None:
         genre = json.loads(redis_genre_detail)
@@ -90,12 +85,6 @@ def show(slug):
 
 @genre_service_api_blueprint.route('/api/genres/<string:slug>', methods=['DELETE'])
 def destroy(slug):
-    input = {'slug':slug}
-    
-    v.validate(input,genre_schema.delete)
-    if v.errors:
-        return jsonify(v.errors),400
-
     genre = Genre.get_by_slug(slug)
     if genre is None:
         return {'status':False,'message':'genre not found','genre':None},404
@@ -104,24 +93,25 @@ def destroy(slug):
 
     return {'status':True,'message':'deleted','genre':genre}
 
-
-@genre_service_api_blueprint.route('/api/genres/<string:slug>/films', methods=['DELETE'])
+@genre_service_api_blueprint.route('/api/genres/<string:slug>/films', methods=['GET'])
 def show_films(slug):
-    input = {'slug':slug}
-    
-    v.validate(input,genre_schema.delete)
-    if v.errors:
-        return jsonify(v.errors),400
+    pageArg = request.args.get('page')
+    if pageArg is None:
+        page = '1'
+    else:
+        page = pageArg
 
     genre = Genre.get_by_slug(slug)
     if genre is None:
         return {'status':False,'message':'genre not found','genre':None},404
 
-
-    genre.delete()
-
-    return {'status':True,'message':'deleted','genre':genre}
-
-
+    """
+        1) Don't cache bcs if film name had changed you wouldn't have seen that changes on redis cache response and content service already caches it
+        2) With Observer pattern on every delete,update and create actions flusing genre based redis caches Just check film_observer.py at content-service project
+    """
     
- 
+    response = FilmService.get_films_by_slug(slug,page)
+    #return response
+    return response['response_data'], response['status_code']
+    
+    

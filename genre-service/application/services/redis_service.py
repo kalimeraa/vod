@@ -12,13 +12,13 @@ def delete_genres_paginations():
         redis.delete(key)
 
 def store_genre_detail(slug: str,content: str):
-    redis.set('genre-detail-' + slug,content)
+    redis.set('genre-detail-' + slug,content,ex=50)
 
 def get_genre_detail(slug: str):
     return redis.get('genre-detail-' + slug)
 
 def store_genres_page(page: int,content: str):
-    redis.set('genre-page-' + str(page),content)
+    redis.set('genre-page-' + str(page),content,ex=50)
 
 def get_genres_page(page: int):
     return redis.get('genre-page-' + str(page))        
