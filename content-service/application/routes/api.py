@@ -12,34 +12,31 @@ v = Validator()
 
 @content_service_api_blueprint.route('/api/films', methods=['POST'])
 def store():
-    content = request.json
-    v.validate(content,film_schema.create)
+    input = request.json
+    v.validate(input,film_schema.create)
     if v.errors:
         return jsonify(v.errors),400
 
-    film = Film.get_by_slug(slugify(content['name']))
+    film = Film.get_by_slug(slugify(input['name']))
     if film is not None:
         return {'status':False,'message':'film is already exist','film':film.to_json()},409
 
-    film = Film.create(content)
+    film = Film.create(input)
     
     return {'status':True,'message':'created','film':film.to_json()}
 
 @content_service_api_blueprint.route('/api/films/<string:slug>', methods=['PUT','PATCH'])
 def update(slug):
-    content = request.json
-    
-    v.validate(content,film_schema.update)
+    input = request.json
+    v.validate(input,film_schema.update)
     if v.errors:
         return jsonify(v.errors),400
     
-    content['slug'] = slug
-    
-    film = Film.get_by_slug(content['slug'])
+    film = Film.get_by_slug(slug)
     if film is None:
         return {'status':False,'message':'film not found','film':None},404
 
-    film.update(content)
+    film = film.update(input)
 
     return {'status':True,'message':'updated','film':film.to_json()}    
 
@@ -54,8 +51,9 @@ def index():
     
     redis_films_page = get_films_page(page)
     if redis_films_page is not None:
-        jsn = json.loads(redis_films_page)
-        return jsonify(jsn)
+        films = json.loads(redis_films_page)
+
+        return jsonify(films)
     
     films = Film.query.limit(page_size).offset(page-1**page_size).all()
     if len(films) == 0:
@@ -69,15 +67,16 @@ def index():
 
 @content_service_api_blueprint.route('/api/films/<string:slug>', methods=['GET'])
 def show(slug):
-    content = {'slug':slug}
-    v.validate(content,film_schema.show)
+    input = {'slug':slug}
+    v.validate(input,film_schema.show)
     if v.errors:
         return jsonify(v.errors),400
 
     redis_film_detail = get_film_detail(slug)    
     if redis_film_detail is not None:
-        content = json.loads(redis_film_detail)
-        return jsonify(content)
+        films = json.loads(redis_film_detail)
+
+        return jsonify(films)
 
     film = Film.get_by_slug(slug)
     if film is None:
@@ -91,9 +90,9 @@ def show(slug):
 
 @content_service_api_blueprint.route('/api/films/<string:slug>', methods=['DELETE'])
 def destroy(slug):
-    content = {'slug':slug}
+    input = {'slug':slug}
     
-    v.validate(content,film_schema.delete)
+    v.validate(input,film_schema.delete)
     if v.errors:
         return jsonify(v.errors),400
 

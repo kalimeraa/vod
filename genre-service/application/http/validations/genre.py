@@ -1,7 +1,7 @@
 create = {
       'name': {'type': 'string', 'required': True},
       'description': {'type':'string','required':True},
-      'cover':{'type':'string','required':True},
+      'cover':{'type':'string','required':True}
 }
 
 show = {
@@ -15,7 +15,6 @@ delete = {
 update = {
       'name': {'type': 'string', 'required': True},
       'description': {'type':'string','required':True},
-      'cover':{'type':'string','required':True},
-      'slug': {'type': 'string', 'required': True}
+      'cover':{'type':'string','required':True}
 }
 
