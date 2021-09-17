@@ -1,10 +1,7 @@
 create = {
       'name': {'type': 'string', 'required': True},
       'description': {'type':'string','required':True},
-      'fragman':{'type':'string','required':True},
       'cover':{'type':'string','required':True},
-      'year':{'type':'integer','required':True},
-      'genre_id':{'type':'integer','required':True}
 }
 
 show = {
@@ -18,9 +15,7 @@ delete = {
 update = {
       'name': {'type': 'string', 'required': True},
       'description': {'type':'string','required':True},
-      'fragman':{'type':'string','required':True},
       'cover':{'type':'string','required':True},
-      'year':{'type':'integer','required':True},
-      'genre_id':{'type':'integer','required':True}
+      'slug': {'type': 'string', 'required': True}
 }
 

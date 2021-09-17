@@ -1,0 +1,61 @@
+version: "3.1"
+
+volumes:
+  genre_dbvol:
+
+networks:
+  vod_network:
+    external:
+      name: vod_network
+
+services:
+  genre-redis:
+    image: redis:6.0-alpine
+    container_name: genre-redis
+    working_dir: /application/genre-redis
+    ports:
+      - "6378:6379"
+    networks:
+      - vod_network
+    restart: always 
+
+  genre-db:
+    image: postgres
+    container_name: genre-db
+    volumes:
+      - genre_dbvol:/var/lib/postgresql/data:delegated
+    environment:
+      - POSTGRES_USER=postgresrootuser
+      - POSTGRES_PASSWORD=postgresrootpassword
+      - POSTGRES_DB=genre-db
+    ports:
+      - "8085:5432"
+    networks:
+      - vod_network
+    restart: always     
+
+  genre-service:
+    build:
+      context: .
+    container_name: genre-service
+    depends_on: 
+      - genre-redis
+      - genre-db
+    ports:
+      - "5001:5001"
+    volumes: 
+      - ./:/genre-service
+    environment: 
+      - DEBUG=TRUE
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - REDIS_HOST=genre-redis
+      - REDIS_PORT=6379
+      - REDIS_USER=
+      - REDIS_PASSWORD=
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgresrootuser:postgresrootpassword@genre-db:5432/genre-db
+    networks:
+      - vod_network
+    restart: always 
+  
+  

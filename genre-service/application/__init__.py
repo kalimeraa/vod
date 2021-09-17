@@ -14,7 +14,7 @@ def create_app(test=False):
         app.config['TESTING'] = True
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = environ['SQLALCHEMY_DATABASE_URI']
-
+    
     app.config['CACHE_TYPE'] = 'RedisCache'
     app.config['CACHE_REDIS_HOST'] = environ['REDIS_HOST']
     app.config['CACHE_REDIS_PORT'] = environ['REDIS_PORT']
@@ -22,8 +22,8 @@ def create_app(test=False):
     db.init_app(app)
 
     with app.app_context():
-        from .routes import content_service_api_blueprint
-        app.register_blueprint(content_service_api_blueprint)
+        from .routes import genre_service_api_blueprint
+        app.register_blueprint(genre_service_api_blueprint)
         #just migration
         if environ['FLASK_ENV'] == 'development':
             db.drop_all()

@@ -28,12 +28,13 @@ def store():
 @content_service_api_blueprint.route('/api/films/<string:slug>', methods=['PUT','PATCH'])
 def update(slug):
     content = request.json
-    content['slug'] = slug
     
     v.validate(content,film_schema.update)
     if v.errors:
         return jsonify(v.errors),400
-
+    
+    content['slug'] = slug
+    
     film = Film.get_by_slug(content['slug'])
     if film is None:
         return {'status':False,'message':'film not found','film':None},404

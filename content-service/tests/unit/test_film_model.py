@@ -10,7 +10,7 @@ test_film1.id = 1
 test_film1.name = "Matrix 1999"
 test_film1.description = 'matrix desc'
 test_film1.fragman = "https://matrix.com/fragman"
-test_film1.category_id = 1
+test_film1.genre_id = 1
 test_film1.year = 1999
 test_film1.cover = "https://pictures.com/matrix-1999"
 test_film1.slug = dummySlug
@@ -33,7 +33,7 @@ def test_should_be_returned_films(mock_film):
     test_film2.name = "Matrix Reloaded"
     test_film2.description = "matrix reloaded desc"
     test_film2.fragman = "https://matrix-reloaded.com/fragman"
-    test_film2.category_id = 1
+    test_film2.genre_id = 1
     test_film2.year = 2003
     test_film2.cover = "https://pictures.com/matrix-reloaded"
     test_film2.slug = "matrix-reloaded"
@@ -75,7 +75,7 @@ def test_should_be_returned_film_json(mock_film):
             'fragman': 'https://matrix.com/fragman',
             'cover': 'https://pictures.com/matrix-1999',
             'year': 1999,
-            'category_id': 1,
+            'genre_id': 1,
             'slug': dummySlug,
             'created_at': date.today(),
             'updated_at': date.today()
@@ -106,7 +106,7 @@ def test_should_be_created_film():
             'fragman': 'https://matrix.com/fragman',
             'cover': 'https://pictures.com/matrix-1999',
             'year': 1999,
-            'category_id': 1,
+            'genre_id': 1,
     }
     
     patched_add = MagicMock(spec=sqlalchemy.orm.Session.add)
@@ -138,7 +138,7 @@ def test_should_be_updated_film(mock_film):
             'fragman': 'https://matrix.com/fragman',
             'cover': 'https://pictures.com/matrix-1999',
             'year': expected_year,
-            'category_id': 1,
+            'genre_id': 1,
     }
     
     with patch('application.db.session.add', new=patched_add):

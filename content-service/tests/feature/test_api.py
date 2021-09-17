@@ -4,7 +4,7 @@ input = {
         "year": 2012,
         "fragman":"https://www.youtube.com/watch?v=django",
         "cover" : "https://imdb.pic/django",
-        "category_id" : 3
+        "genre_id" : 3
 }
 
 update_input = {
@@ -13,7 +13,7 @@ update_input = {
         "year": 2012,
         "fragman":"https://www.youtube.com/watch?v=django",
         "cover" : "https://imdb.pic/django",
-        "category_id" : 3
+        "genre_id" : 3
 }
 
 incorrect_input = {
@@ -52,12 +52,12 @@ def test_should_be_existing_film_error(client):
     assert (rv.status_code == 409)
 
 #api/films create film
-def test_should_be_category_required_error_when_create_film(client):
+def test_should_be_genre_required_error_when_create_film(client):
     rv = client.post('/api/films', json=incorrect_input)
     json = rv.get_json()
         
     assert (rv.status_code == 400)
-    assert (json == {'category_id': ['required field']})
+    assert (json == {'genre_id': ['required field']})
 
 #api/films update film
 def test_should_be_updated_film(client):
@@ -67,13 +67,13 @@ def test_should_be_updated_film(client):
     assert (rv.status_code == 200)
 
 #api/films update film
-def test_should_be_category_required_error_when_update_film(client):
+def test_should_be_genre_required_error_when_update_film(client):
     test_should_be_created_film(client)    
     rv = client.put('/api/films/django-unchained', json=incorrect_update_input)
     json = rv.get_json()
 
     assert (rv.status_code == 400)
-    assert (json == {'category_id': ['required field']})
+    assert (json == {'genre_id': ['required field']})
 
 #api/films update film
 def test_should_be_film_not_found_error_when_update_film(client):
