@@ -14,12 +14,12 @@ def before_update_listener(mapper, connection, target):
 
 @event.listens_for(Film, 'after_insert')
 def receive_after_insert(mapper, connection, target):
-    delete_breadcrumbs(target.slug)
+    delete_breadcrumbs(target.id)
 
 @event.listens_for(Film, 'after_update')
 def receive_after_update(mapper, connection, target):
-    delete_breadcrumbs(target.slug)
+    delete_breadcrumbs(target.id)
 
 @event.listens_for(Film, 'after_delete')
 def receive_after_delete(mapper, connection, target):
-    delete_breadcrumbs(target.slug)
+    delete_breadcrumbs(target.id)

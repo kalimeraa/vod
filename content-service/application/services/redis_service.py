@@ -1,12 +1,12 @@
 from .. import redis
 
-def delete_breadcrumbs(slug: str):
-    delete_film_detail(slug)
+def delete_breadcrumbs(id: int):
+    delete_film_detail(id)
     delete_films_paginations()
     delete_genre_films_paginations()
 
-def delete_film_detail(slug: str):
-    redis.delete('film-detail-' + slug)
+def delete_film_detail(id: int):
+    redis.delete('film-detail-' + str(id))
 
 def delete_films_paginations():
     for key in redis.keys('films-page-*'):
@@ -16,11 +16,11 @@ def delete_genre_films_paginations():
     for key in redis.keys('genre-films-page-*'):
         redis.delete(key)        
 
-def store_film_detail(slug: str,content: str):
-    redis.set('film-detail-' + slug,content)
+def store_film_detail(id: int,content: str):
+    redis.set('film-detail-' + str(id),content)
 
-def get_film_detail(slug: str):
-    return redis.get('film-detail-' + slug)
+def get_film_detail(id: int):
+    return redis.get('film-detail-' + str(id))
 
 def store_films_page(page: int,content: str):
     redis.set('films-page-' + str(page),content,ex=50)

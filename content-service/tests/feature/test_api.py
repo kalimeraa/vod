@@ -90,14 +90,14 @@ def test_should_be_genre_required_error_when_create_film(client):
 #api/films update film
 def test_should_be_updated_film(client):
     test_should_be_created_film(client)    
-    rv = client.put('/api/films/django-unchained', json=update_input)
+    rv = client.put('/api/films/1', json=update_input)
         
     assert (rv.status_code == 200)
 
 #api/films update film
 def test_should_be_genre_required_error_when_update_film(client):
     test_should_be_created_film(client)    
-    rv = client.put('/api/films/django-unchained', json=incorrect_update_input)
+    rv = client.put('/api/films/1', json=incorrect_update_input)
     json = rv.get_json()
 
     assert (rv.status_code == 400)
@@ -105,7 +105,7 @@ def test_should_be_genre_required_error_when_update_film(client):
 
 #api/films update film
 def test_should_be_film_not_found_error_when_update_film(client):
-    rv = client.put('/api/films/dummy-film', json=update_input)
+    rv = client.put('/api/films/3333', json=update_input)
     json = rv.get_json()
 
     assert (rv.status_code == 404)
@@ -114,7 +114,7 @@ def test_should_be_film_not_found_error_when_update_film(client):
 #api/films delete film
 def test_should_be_deleted_film(client):
     test_should_be_created_film(client)
-    rv = client.delete('/api/films/django-unchained')
+    rv = client.delete('/api/films/1')
     json = rv.get_json()
     
     assert (rv.status_code == 200)
@@ -123,7 +123,7 @@ def test_should_be_deleted_film(client):
 
 #api/films delete film
 def test_should_be_film_not_found_error_when_delete_film(client):
-    rv = client.delete('/api/films/dummy-film')
+    rv = client.delete('/api/films/3333')
     json = rv.get_json()
 
     assert (rv.status_code == 404)
@@ -132,7 +132,7 @@ def test_should_be_film_not_found_error_when_delete_film(client):
 #api/films show film
 def test_should_be_shown_film(client):
     test_should_be_created_film(client)
-    rv = client.get('/api/films/django-unchained')
+    rv = client.get('/api/films/1')
     json = rv.get_json()
 
     assert (rv.status_code == 200)
@@ -141,7 +141,7 @@ def test_should_be_shown_film(client):
 
 #api/films show film
 def test_should_be_film_not_found_error_when_show_film(client):
-    rv = client.get('/api/films/dummy-film')
+    rv = client.get('/api/films/3333')
     json = rv.get_json()
 
     assert (rv.status_code == 404)
@@ -169,13 +169,13 @@ def test_should_be_shown_two_films(client):
 
 #api/films/genre all
 def test_should_be_shown_genre_films(client):
-    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_slug)
+    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_id)
     patched_genre_service.return_value = genre_response
 
-    with patch('application.services.genre_service.GenreService.get_genre_by_slug', new=patched_genre_service):
+    with patch('application.services.genre_service.GenreService.get_genre_by_id', new=patched_genre_service):
         input['genre_id'] = 1
         client.post('/api/films', json=input)
-        rv = client.get('api/films/genre/horror')
+        rv = client.get('api/films/genre/1')
         json = rv.get_json()
         
         assert (json['status'] == True)
@@ -184,18 +184,18 @@ def test_should_be_shown_genre_films(client):
     
 #api/films/genre all
 def test_should_be_shown_empty_genre_films(client):
-    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_slug)
+    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_id)
     patched_genre_service.return_value = genre_response
 
-    with patch('application.services.genre_service.GenreService.get_genre_by_slug', new=patched_genre_service):
-        rv = client.get('api/films/genre/' + genre_input['slug'])
+    with patch('application.services.genre_service.GenreService.get_genre_by_id', new=patched_genre_service):
+        rv = client.get('api/films/genre/' + str(genre_input['id']))
         json = rv.get_json()
         
         assert (json == {'status':False,'message':'there are no films','films':None})
 
 #api/films show film
 def test_should_be_genre_not_found_error_when_show_genre_films(client):
-    rv = client.get('api/films/genre/dummy-genre')
+    rv = client.get('api/films/genre/3333')
     json = rv.get_json()
 
     assert (rv.status_code == 404)

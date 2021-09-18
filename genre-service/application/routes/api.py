@@ -26,14 +26,14 @@ def store():
     
     return {'status':True,'message':'created','genre':genre.to_json()}
 
-@genre_service_api_blueprint.route('/api/genres/<string:slug>', methods=['PUT','PATCH'])
-def update(slug):
+@genre_service_api_blueprint.route('/api/genres/<int:id>', methods=['PUT','PATCH'])
+def update(id):
     input = request.json
     v.validate(input,genre_schema.update)
     if v.errors:
         return jsonify(v.errors),400
     
-    genre = Genre.get_by_slug(slug)
+    genre = Genre.get_by_id(id)
     if genre is None:
         return {'status':False,'message':'genre not found','genre':None},404
 
@@ -66,26 +66,26 @@ def index():
     
     return response
 
-@genre_service_api_blueprint.route('/api/genres/<string:slug>', methods=['GET'])
-def show(slug):
-    redis_genre_detail = get_genre_detail(slug)    
+@genre_service_api_blueprint.route('/api/genres/<int:id>', methods=['GET'])
+def show(id):
+    redis_genre_detail = get_genre_detail(id)    
     if redis_genre_detail is not None:
         genre = json.loads(redis_genre_detail)
         return jsonify(genre)
 
-    genre = Genre.get_by_slug(slug)
+    genre = Genre.get_by_id(id)
     if genre is None:
         return {'status':False,'message':'genre not found','genre':None},404
         
     response = jsonify({'status':True,'message':'successful','genre':genre.to_json()})
     
-    store_genre_detail(slug,response.get_data())
+    store_genre_detail(id,response.get_data())
 
     return response
 
-@genre_service_api_blueprint.route('/api/genres/<string:slug>', methods=['DELETE'])
-def destroy(slug):
-    genre = Genre.get_by_slug(slug)
+@genre_service_api_blueprint.route('/api/genres/<int:id>', methods=['DELETE'])
+def destroy(id):
+    genre = Genre.get_by_id(id)
     if genre is None:
         return {'status':False,'message':'genre not found','genre':None},404
 
@@ -107,11 +107,11 @@ def show_films(slug):
 
     """
         1) Don't cache bcs if film name had changed you wouldn't have seen that changes on redis cache response and content service already caches it
-        2) With Observer pattern on every delete,update and create actions flusing genre based redis caches Just check film_observer.py at content-service project
+        2) With Observer pattern on every delete,update and create actions flusing genre based redis caches Just check film_observer.py on content-service project
     """
     
-    response = FilmService.get_films_by_slug(slug,page)
-    #return response
+    response = FilmService.get_films(genre.id,page)
+
     return response['response_data'], response['status_code']
     
     

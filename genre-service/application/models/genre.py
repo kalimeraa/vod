@@ -40,6 +40,10 @@ class Genre(db.Model):
         return category
 
     @staticmethod
+    def get_by_id(id: int):
+        return Genre.query.filter_by(id=id).first()
+
+    @staticmethod
     def get_by_slug(slug):
         return Genre.query.filter_by(slug=slug).first()
 
@@ -56,7 +60,7 @@ class Genre(db.Model):
         self.name = input['name']
         self.description = input['description']
         self.cover = input['cover']
-
+        
         db.session.add(self)
         db.session.commit()
 

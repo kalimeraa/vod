@@ -52,6 +52,10 @@ class Film(db.Model):
     def get_by_slug(slug):
         return Film.query.filter_by(slug=slug).first()
 
+    @staticmethod
+    def get_by_id(id):
+        return Film.query.filter_by(id=id).first()    
+
     def delete(self) -> bool:
         try:
             db.session.delete(self)

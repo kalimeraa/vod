@@ -1,12 +1,10 @@
 from unittest.mock import patch,MagicMock
 import application
 
-
 input = {
     "name": "Horror",
     "description": "horror movies",
     "cover" : "https://imdb.pic/horror.jpg",
-        
 }
 
 update_input = {
@@ -57,6 +55,8 @@ film_service_empty_response = {
     "status_code": 200
 }
 
+dummy_genre_id = '3333'
+
 #api/genres create genre
 def test_should_be_created_genre(client):
     rv = client.post('/api/genres', json=input)
@@ -87,14 +87,14 @@ def test_should_be_description_required_error_when_create_genre(client):
 #api/genres update genre
 def test_should_be_updated_genre(client):
     test_should_be_created_genre(client)
-    rv = client.put('/api/genres/horror', json=update_input)
+    rv = client.put('/api/genres/1', json=update_input)
         
     assert (rv.status_code == 200)
 
 #api/genres update genre
 def test_should_be_name_required_error_when_update_genre(client):
     test_should_be_created_genre(client)    
-    rv = client.put('/api/genres/horror', json=incorrect_update_input)
+    rv = client.put('/api/genres/1', json=incorrect_update_input)
     json = rv.get_json()
 
     assert (rv.status_code == 400)
@@ -102,7 +102,7 @@ def test_should_be_name_required_error_when_update_genre(client):
 
 #api/genres update genre
 def test_should_be_genre_not_found_error_when_update_genre(client):
-    rv = client.put('/api/genres/dummy-genre', json=update_input)
+    rv = client.put('/api/genres/' + dummy_genre_id, json=update_input)
     json = rv.get_json()
 
     assert (rv.status_code == 404)
@@ -111,7 +111,7 @@ def test_should_be_genre_not_found_error_when_update_genre(client):
 #api/genres delete genre
 def test_should_be_deleted_genre(client):
     test_should_be_created_genre(client)
-    rv = client.delete('/api/genres/horror')
+    rv = client.delete('/api/genres/1')
     json = rv.get_json()
     
     assert (rv.status_code == 200)
@@ -120,7 +120,7 @@ def test_should_be_deleted_genre(client):
 
 #api/genres delete genre
 def test_should_be_genre_not_found_error_when_delete_genre(client):
-    rv = client.delete('/api/genres/dummy-genre')
+    rv = client.delete('/api/genres/' + dummy_genre_id)
     json = rv.get_json()
 
     assert (rv.status_code == 404)
@@ -129,7 +129,7 @@ def test_should_be_genre_not_found_error_when_delete_genre(client):
 #api/genres show genre
 def test_should_be_shown_genre(client):
     test_should_be_created_genre(client)
-    rv = client.get('/api/genres/horror')
+    rv = client.get('/api/genres/1')
     json = rv.get_json()
 
     assert (rv.status_code == 200)
@@ -138,7 +138,7 @@ def test_should_be_shown_genre(client):
 
 #api/genres show genre
 def test_should_be_genre_not_found_error_when_show_genre(client):
-    rv = client.get('/api/genres/dummy-genre')
+    rv = client.get('/api/genres/' + dummy_genre_id)
     json = rv.get_json()
 
     assert (rv.status_code == 404)
@@ -166,10 +166,10 @@ def test_should_show_two_genres(client):
 #api/genres/<genre>/films all
 def test_should_be_shown_genre_films(client):
     client.post('/api/genres', json=input)
-    patched_film_service = MagicMock(spec=application.services.film_service.FilmService.get_films_by_slug)
+    patched_film_service = MagicMock(spec=application.services.film_service.FilmService.get_films)
     patched_film_service.return_value = film_service_response
 
-    with patch('application.services.film_service.FilmService.get_films_by_slug', new=patched_film_service):
+    with patch('application.services.film_service.FilmService.get_films', new=patched_film_service):
         rv = client.get('api/genres/horror/films')
         json = rv.get_json()
 
@@ -181,10 +181,10 @@ def test_should_be_shown_genre_films(client):
 #api/genres/<genre>/films all
 def test_should_be_shown_empty_genre_films(client):
     client.post('/api/genres', json=input)
-    patched_film_service = MagicMock(spec=application.services.film_service.FilmService.get_films_by_slug)
+    patched_film_service = MagicMock(spec=application.services.film_service.FilmService.get_films)
     patched_film_service.return_value = film_service_empty_response
 
-    with patch('application.services.film_service.FilmService.get_films_by_slug', new=patched_film_service):
+    with patch('application.services.film_service.FilmService.get_films', new=patched_film_service):
         rv = client.get('api/genres/horror/films')
         json = rv.get_json()
 

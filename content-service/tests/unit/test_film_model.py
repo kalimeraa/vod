@@ -56,10 +56,18 @@ def test_should_be_returned_none(mock_film):
 
 #Film.get_by_slug()
 @patch("application.models.film.Film")
-def test_should_be_returned_film(mock_film):
+def test_should_be_returned_film_by_slug(mock_film):
     mock_film.query.filter_by(slug=dummySlug).first.return_value = test_film1
 
     film = Film.get_by_slug(dummySlug)
+    assert (film == test_film1)
+
+#Film.get_by_id()
+@patch("application.models.film.Film")
+def test_should_be_returned_film_by_id(mock_film):
+    mock_film.query.filter_by(id=1).first.return_value = test_film1
+
+    film = Film.get_by_id(1)
     assert (film == test_film1)
 
 #Film.to_json()

@@ -3,14 +3,15 @@ from application.models.genre import Genre
 from datetime import date
 import sqlalchemy 
  
-dummySlug = "horror"
+dummy_slug = "horror"
+dummy_id = 1
     
 test_genre1 = Genre()
 test_genre1.id = 1
 test_genre1.name = "Horror"
 test_genre1.description = 'horror movies'
 test_genre1.cover = "https://pictures.com/horror-cover.jpg"
-test_genre1.slug = dummySlug
+test_genre1.slug = dummy_slug
 test_genre1.created_at = date.today()
 test_genre1.updated_at = date.today()
 
@@ -43,31 +44,39 @@ def test_should_be_returned_genres(mock_genre):
 #genre.get_by_slug()
 @patch("application.models.genre.Genre")
 def test_should_be_returned_none(mock_genre):
-    mock_genre.query.filter_by(slug=dummySlug).first.return_value = None
-    genre = Genre.get_by_slug(dummySlug)
+    mock_genre.query.filter_by(slug=dummy_slug).first.return_value = None
+    genre = Genre.get_by_slug(dummy_slug)
 
     assert(genre == None)
 
+#genre.get_by_id()
+@patch("application.models.genre.Genre")
+def test_should_be_returned_genre_by_id(mock_genre):
+    mock_genre.query.filter_by(id=dummy_id).first.return_value = test_genre1
+
+    genre = Genre.get_by_id(dummy_id)
+    assert (genre == test_genre1)
+
 #genre.get_by_slug()
 @patch("application.models.genre.Genre")
-def test_should_be_returned_genre(mock_genre):
-    mock_genre.query.filter_by(slug=dummySlug).first.return_value = test_genre1
+def test_should_be_returned_genre_by_slug(mock_genre):
+    mock_genre.query.filter_by(slug=dummy_slug).first.return_value = test_genre1
 
-    genre = Genre.get_by_slug(dummySlug)
+    genre = Genre.get_by_slug(dummy_slug)
     assert (genre == test_genre1)
 
 #genre.to_json()
 @patch("application.models.genre.Genre")
 def test_should_be_returned_genre_json(mock_genre):
-    mock_genre.query.filter_by(slug=dummySlug).first.return_value = test_genre1
-    genre_json = Genre.get_by_slug(dummySlug).to_json()
+    mock_genre.query.filter_by(slug=dummy_slug).first.return_value = test_genre1
+    genre_json = Genre.get_by_slug(dummy_slug).to_json()
 
     genre_dict = {
             'id': 1,
             'name': 'Horror',
             'description': 'horror movies',
             'cover': 'https://pictures.com/horror-cover.jpg',
-            'slug': dummySlug,
+            'slug': dummy_slug,
             'created_at': date.today(),
             'updated_at': date.today()
         }
@@ -77,9 +86,9 @@ def test_should_be_returned_genre_json(mock_genre):
 #genre.delete()
 @patch("application.models.genre.Genre")
 def test_should_be_deleted_genre(mock_genre):
-    mock_genre.query.filter_by(slug=dummySlug).first.return_value = test_genre1
+    mock_genre.query.filter_by(slug=dummy_slug).first.return_value = test_genre1
     
-    genre = Genre.get_by_slug(dummySlug)
+    genre = Genre.get_by_slug(dummy_slug)
     
     patched_delete = MagicMock(spec=sqlalchemy.orm.Session.delete)
     patched_commit = MagicMock(spec=sqlalchemy.orm.Session.commit)
@@ -112,11 +121,10 @@ def test_should_be_created_genre():
             
             assert (genre == test_genre1)
     
-    
 #genre.update()
 @patch("application.models.genre.Genre")
 def test_should_be_updated_genre(mock_genre):
-    mock_genre.query.filter_by(slug=dummySlug).first.return_value = test_genre1  
+    mock_genre.query.filter_by(slug=dummy_slug).first.return_value = test_genre1  
     patched_add = MagicMock(spec=sqlalchemy.orm.Session.add)
     patched_commit = MagicMock(spec=sqlalchemy.orm.Session.commit)
 
@@ -128,7 +136,7 @@ def test_should_be_updated_genre(mock_genre):
     
     with patch('application.db.session.add', new=patched_add):
         with patch('application.db.session.commit', new=patched_commit):
-            genre = Genre.get_by_slug(dummySlug)
+            genre = Genre.get_by_slug(dummy_slug)
             updated_genre = genre.update(data)
 
             assert (updated_genre.name == data['name'])
