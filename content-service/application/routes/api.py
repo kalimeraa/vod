@@ -18,6 +18,10 @@ def store():
     if v.errors:
         return jsonify(v.errors),400
 
+    genre_response = GenreService.get_genre_by_id(input['genre_id'])
+    if genre_response['response_data']['status'] == False:
+        return genre_response['response_data'],genre_response['status_code']
+
     film = Film.get_by_slug(slugify(input['name']))
     if film is not None:
         return {'status':False,'message':'film is already exist','film':film.to_json()},409
@@ -32,7 +36,11 @@ def update(id):
     v.validate(input,film_schema.update)
     if v.errors:
         return jsonify(v.errors),400
-    
+
+    genre_response = GenreService.get_genre_by_id(input['genre_id'])
+    if genre_response['response_data']['status'] == False:
+        return genre_response['response_data'],genre_response['status_code']
+
     film = Film.get_by_id(id)
     if film is None:
         return {'status':False,'message':'film not found','film':None},404

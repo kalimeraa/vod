@@ -49,7 +49,7 @@ genre_response = {
             "cover": "https://www.imdb.pic/horror.jpg",
             "created_at": "Fri, 17 Sep 2021 19:58:15 GMT",
             "description": "horror movies",
-            "id": 1,
+            "id": 3,
             "name": "horror",
             "slug": "horror",
             "updated_at": "Fri, 17 Sep 2021 19:58:15 GMT"
@@ -62,22 +62,32 @@ genre_response = {
 
 #api/films create film
 def test_should_be_created_film(client):
-    rv = client.post('/api/films', json=input)
-    json = rv.get_json()
+    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_id)
+    patched_genre_service.return_value = genre_response
 
-    assert (json['status'] == True)
-    assert (json['message'] == 'created')    
-    assert (rv.status_code == 200)
+    with patch('application.services.genre_service.GenreService.get_genre_by_id', new=patched_genre_service):
+        rv = client.post('/api/films', json=input)
+        json = rv.get_json()
+
+        assert (json['status'] == True)
+        assert (json['message'] == 'created')    
+        assert (rv.status_code == 200)
+        assert (json['film'] is not None)
 
 #api/films create film
 def test_should_be_existing_film_error(client):
-    rv = client.post('/api/films', json=input)
-    rv = client.post('/api/films', json=input)
-    json = rv.get_json()
+    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_id)
+    patched_genre_service.return_value = genre_response
 
-    assert (json['status'] == False)
-    assert (json['message'] == 'film is already exist')     
-    assert (rv.status_code == 409)
+    with patch('application.services.genre_service.GenreService.get_genre_by_id', new=patched_genre_service):
+        rv = client.post('/api/films', json=input)
+        rv = client.post('/api/films', json=input)
+        json = rv.get_json()
+
+        assert (json['status'] == False)
+        assert (json['message'] == 'film is already exist')
+        assert (rv.status_code == 409)
+        assert (json['film'] is not None)
 
 #api/films create film
 def test_should_be_genre_required_error_when_create_film(client):
@@ -89,10 +99,18 @@ def test_should_be_genre_required_error_when_create_film(client):
 
 #api/films update film
 def test_should_be_updated_film(client):
-    test_should_be_created_film(client)    
-    rv = client.put('/api/films/1', json=update_input)
-        
-    assert (rv.status_code == 200)
+    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_id)
+    patched_genre_service.return_value = genre_response
+
+    with patch('application.services.genre_service.GenreService.get_genre_by_id', new=patched_genre_service):
+        rv = client.post('/api/films', json=input)
+        rv = client.put('/api/films/1', json=update_input)
+        json = rv.get_json()
+
+        assert (rv.status_code == 200)
+        assert (json['message'] == 'updated')
+        assert (json['status'] == True)
+        assert (json['film'] is not None)
 
 #api/films update film
 def test_should_be_genre_required_error_when_update_film(client):
@@ -105,11 +123,15 @@ def test_should_be_genre_required_error_when_update_film(client):
 
 #api/films update film
 def test_should_be_film_not_found_error_when_update_film(client):
-    rv = client.put('/api/films/3333', json=update_input)
-    json = rv.get_json()
+    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_id)
+    patched_genre_service.return_value = genre_response
 
-    assert (rv.status_code == 404)
-    assert (json == {'film': None, 'message': 'film not found', 'status': False})
+    with patch('application.services.genre_service.GenreService.get_genre_by_id', new=patched_genre_service):
+        rv = client.put('/api/films/3333', json=update_input)
+        json = rv.get_json()
+
+        assert (rv.status_code == 404)
+        assert (json == {'film': None, 'message': 'film not found', 'status': False})
 
 #api/films delete film
 def test_should_be_deleted_film(client):
@@ -120,6 +142,7 @@ def test_should_be_deleted_film(client):
     assert (rv.status_code == 200)
     assert (json['message'] == 'deleted')
     assert (json['status'] == True)
+    assert (json['film'] is not None)
 
 #api/films delete film
 def test_should_be_film_not_found_error_when_delete_film(client):
@@ -137,6 +160,7 @@ def test_should_be_shown_film(client):
 
     assert (rv.status_code == 200)
     assert (json['status'] == True)
+    assert(json['film'] is not None)
     assert (json['message'] == 'successful')
 
 #api/films show film
@@ -157,14 +181,18 @@ def test_should_be_shown_no_films(client):
 
 #api/films all
 def test_should_be_shown_two_films(client):
-    client.post('/api/films', json=input)
-    client.post('/api/films', json=update_input)
-    rv = client.get('api/films')
-    json = rv.get_json()
+    patched_genre_service = MagicMock(spec=application.services.genre_service.GenreService.get_genre_by_id)
+    patched_genre_service.return_value = genre_response
 
-    assert (json['status'] == True)
-    assert (len(json['films']) == 2)
-    assert (json['message'] == 'successful')
+    with patch('application.services.genre_service.GenreService.get_genre_by_id', new=patched_genre_service):
+        client.post('/api/films', json=input)
+        client.post('/api/films', json=update_input)
+        rv = client.get('api/films')
+        json = rv.get_json()
+
+        assert (json['status'] == True)
+        assert (len(json['films']) == 2)
+        assert (json['message'] == 'successful')
 
 
 #api/films/genre all
