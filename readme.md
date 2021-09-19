@@ -37,5 +37,16 @@
   chmod +x install.sh && ./install.sh
 ```
 
+### Test Run
+```
+    on content-service directory
+    docker-compose exec content-service bash
+    pytest -s
+    
+    on genre-service directory
+    docker-compose exec genre-service bash
+    pytest -s
+```
+
 # Endpoints Collection
 - Import vod.postman_collection.json to your postman, and you can easily see all endpoints 
